@@ -15,35 +15,61 @@ def username():
 	return "pate1854"
     
 def query1():
-	return """
-    SELECT * 
-    FROM Place
-    WHERE price < 100;
+	return """SELECT place.id AS id, place.name as name, host.host_name, room.room_type, place.price, neighbourhood.name as neighbourhood, area.area
+    FROM place
+    JOIN host USING(host_id)
+    JOIN room USING(room_type_id)
+    JOIN neighbourhood USING(neighbourhood_id)
+    JOIN area USING(area_id)
+    WHERE neighbourhood LIKE 'Harlem';
 	"""
 
 def query2():
-	return "2"
+	return """SELECT place.id, place.name, host.host_name, room.room_type, price, longitude, latitude
+    FROM place
+    JOIN host USING(host_id)
+    JOIN room USING(room_type_id)
+    WHERE (longitude BETWEEN -73.99 AND -73.97)
+    AND (latitude BETWEEN 40.75 AND 40.77);
+	"""
 
 def query3():
-	return "3"
+	return """SELECT DISTINCT minimum_nights
+    FROM place
+    ORDER BY minimum_nights asc;
+	"""
 	
 def query4():
-	return "4"
+	return """SELECT AVG(price) AS avg_price, COUNT(id) as place_count, MAX(price) as max_price, MIN(price) as min_price
+	FROM place;
+	"""
 
 def query5():
-	return "5"
+	return """SELECT AVG(price) AS avg_price, COUNT(id) as place_count, MAX(price) as max_price, MIN(price) as min_price
+   FROM place
+   JOIN neighbourhood USING(neighbourhood_id)
+   WHERE neighbourhood.name LIKE 'Harlem';
+	"""
 
 def query6():
-	return "6"
+	return """
+
+	"""
 
 def query7():
-	return "7"
+	return """
+
+	"""
 
 def query8():
-	return "8"
+	return """
+
+	"""
 
 def query9():
-	return "9"
+	return """
+
+	"""
 
 #Do not edit below
 

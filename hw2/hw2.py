@@ -30,7 +30,7 @@ def query2():
     JOIN host USING(host_id)
     JOIN room USING(room_type_id)
     WHERE (longitude BETWEEN -73.99 AND -73.97)
-    AND (latitude BETWEEN 40.75 AND 40.77);
+    	AND (latitude BETWEEN 40.75 AND 40.77);
 	"""
 
 def query3():
@@ -52,23 +52,58 @@ def query5():
 	"""
 
 def query6():
-	return """
-
+	return """SELECT * 
+    FROM (
+    	SELECT name FROM neighbourhood
+    	UNION 
+    	SELECT area.area AS name FROM area
+	)
+    WHERE name LIKE 'B%';
 	"""
 
 def query7():
-	return """
-
+	return """SELECT DISTINCT area
+    FROM area
+    WHERE area NOT IN (
+    	SELECT DISTINCT area.area
+    	FROM place
+    	JOIN neighbourhood USING(neighbourhood_id)
+    	JOIN area USING(area_id)
+    	JOIN room USING(room_type_id)
+    	WHERE room.room_type LIKE 'Entire%'
+	)
+    ORDER BY area asc;
 	"""
 
 def query8():
-	return """
-
+	return """WITH joinedPlace(name, neighbourhood, room_type_id, number_of_reviews, price) AS (
+    	SELECT place.name, neighbourhood.name as neighbourhood, place.room_type_id, place.number_of_reviews, place.price
+		FROM place
+    	JOIN neighbourhood USING(neighbourhood_id)
+	)
+    SELECT A.name, A.price, B.name, B.price
+    FROM joinedPlace A, joinedPlace B
+    WHERE A.neighbourhood = B.neighbourhood
+    	AND A.room_type_id = B.room_type_id
+    	AND A.number_of_reviews = B.number_of_reviews
+    	AND A.price < B.price;
 	"""
 
 def query9():
-	return """
-
+	return """WITH joinedPlace(id, neighbourhood, room_type, price) AS (
+		SELECT place.id, neighbourhood.name as neighbourhood, place.room_type_id, place.price
+		FROM place
+		JOIN neighbourhood USING(neighbourhood_id)
+	)
+	SELECT DISTINCT A.id AS place1_id, B.id AS place2_id, C.id as place3_id, A.price, A.room_type as room_type_id
+	FROM joinedPlace A, joinedPlace B, joinedPlace C
+	WHERE A.price < 100
+	AND ((A.id < B.id) AND (B.id < C.id))
+	AND ((A.price = B.price) AND (B.price = C.price))
+	AND ((A.room_type = B.room_type) AND (B.room_type = C.room_type))
+	AND ((A.neighbourhood <> B.neighbourhood)
+		AND (B.neighbourhood <> C.neighbourhood) 
+		AND (A.neighbourhood <> C.neighbourhood));
 	"""
 
 #Do not edit below

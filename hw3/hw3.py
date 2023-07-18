@@ -16,7 +16,7 @@ def username():
     
 def query1():
 	return """
-    SELECT b.name as neighbourhood, AVG(a.price) as avg_price, COUNT(a.id) as place_count, MAX(a.price) as max_price, MIN(a.price) as min_price
+	SELECT b.name as neighbourhood, AVG(a.price) as avg_price, COUNT(a.id) as place_count, MAX(a.price) as max_price, MIN(a.price) as min_price
 	FROM place a 
 	JOIN neighbourhood b USING(neighbourhood_id) 
 	GROUP BY neighbourhood 
@@ -26,10 +26,10 @@ def query1():
 def query2():
 	return """
 	SELECT b.name as neighbourhood, AVG(a.price) as avg_price, COUNT(a.id) as place_count, MAX(a.price) as max_price, MIN(a.price) as min_price
-   	FROM place a 
+	FROM place a 
 	JOIN neighbourhood b USING(neighbourhood_id)
-    GROUP BY neighbourhood
-   	HAVING place_count >= 4
+	GROUP BY neighbourhood
+	HAVING place_count >= 4
 	ORDER BY avg_price DESC;
    """
 

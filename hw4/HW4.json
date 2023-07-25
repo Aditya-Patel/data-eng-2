@@ -1,0 +1,254 @@
+
+Importing the database.
+You need to install mongoimport (database tools). Follow the instructions in the following link: https://www.mongodb.com/docs/database-tools/installation/installation/
+    
+Use the mongoimport command to import the earthquakes and network JSON files (included ith this homework) to your MongoDB. Use the following commands in the Operating System command shell (not in the MongoDB shell). 
+mongoimport --db db1 --collection earthquakes --file earthquakes.json
+mongoimport --db db1 --collection networks --file networks.json
+    
+Look at the earthquakes JSON file. Note that most of the data is in the properties subdocument. You can refer to attributes in a subdocument using the DOT notation. The first example below retrieves earthquakes whose status is automatic. 
+
+db.earthquakes.find({"properties.status": {"$eq": "automatic" }}, 
+            {_id:1, "properties.place": 1 , "properties.status": 1}).pretty()
+
+// Query output
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbba"),
+    "properties" : {
+            "place" : "22 km NNW of Nelchina, Alaska",
+            "status" : "automatic"
+    }
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbb"),
+    "properties" : {
+            "place" : "8km S of San Diego Country Estates, CA",
+            "status" : "automatic"
+    }
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbe"),
+    "properties" : {
+            "place" : "12km NNE of Lake Hughes, CA",
+            "status" : "automatic"
+    }
+}
+
+The second example simplfies the structure by renaming the attributes (remove the embedded document structure). Note the use of the dollar sign to refer to the embedded attributes.
+
+db.earthquakes.find({"properties.status": {"$eq": "automatic" }}, 
+            {_id:1, place: "$properties.place", status: "$properties.status"}).pretty()
+
+// Query output
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbba"),
+    "place" : "22 km NNW of Nelchina, Alaska",
+    "status" : "automatic"
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbb"),
+    "place" : "8km S of San Diego Country Estates, CA",
+    "status" : "automatic"
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbe"),
+    "place" : "12km NNE of Lake Hughes, CA",
+    "status" : "automatic"
+}            
+
+
+//For the following questions, include only attributes shown in the expected output. The order of the attributes in your result should match the one in the expected result. The order of the documents (rows) can be different.
+
+// Copy and paste your queries to HW4.py
+// Submit your homework to Brightspace
+
+
+//Question 1) (15 points) list earthquakes with magnitude of 2.0 or more. 
+
+//Expected output
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbb9"),
+    "place" : "15 km SW of Leilani Estates, Hawaii",
+    "mag" : 2.44,
+    "sig" : 92
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbc"),
+    "place" : "0 km WSW of Magas Arriba, Puerto Rico",
+    "mag" : 3.16,
+    "sig" : 154
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbe"),
+    "place" : "12km NNE of Lake Hughes, CA",
+    "mag" : 2.07,
+    "sig" : 66
+}
+
+
+//Question 2) (15 points) List earthquakes with longitude (coordinates[0]) between -60 and -120 and latitude (coordinates[1] between 30 and 35). Hint: You can refer to an array element by its index (e.g., geometry.coordinates.0 accesses the first element in the coordinates array). https://www.mongodb.com/docs/manual/tutorial/query-arrays/
+
+//Expected output
+{
+    "geometry" : {
+            "coordinates" : [
+                    -116.779,
+                    32.9331667,
+                    17.25
+            ]
+    },
+    "place" : "8km S of San Diego Country Estates, CA"
+}
+{
+    "geometry" : {
+            "coordinates" : [
+                    -118.4033333,
+                    34.7781667,
+                    0.69
+            ]
+    },
+    "place" : "12km NNE of Lake Hughes, CA"
+}
+
+// The following questions use match, group, lookup, sort, and limit operators in the aggregate pipeline in MongoDB. The following links provide an introduction.
+//https://www.w3schools.com/mongodb/mongodb_aggregations_intro.php
+//https://www.mongodb.com/docs/manual/aggregation/
+
+// More details can be found in the MongoDB manual
+//https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/
+
+
+//Question 3) (15 points) Use the aggregate pipeline to list the average magnitude (mag attribute) for each status type (status attribute) 
+
+//Expected output
+{ "_id" : "reviewed", "avg_mag" : 2.31 }
+{ "_id" : "automatic", "avg_mag" : 1.5633333333333332 }
+
+
+//Question 4) (10 points) List the distinct values of the "net" attribute.
+//Expected output
+{ "_id" : "ci" }
+{ "_id" : "pr" }
+{ "_id" : "ak" }
+{ "_id" : "hv" }
+
+
+//Question 5) (15 points) Find the earthquake with the largest magnitude. 
+
+//Expected output
+{ "magnitude" : 2.44, "place" : "15 km SW of Leilani Estates, Hawaii" }
+
+
+//Question 6) (15 points) Using the aggregate pipeline, compute the left outer join between earthquakes and networks collections. Use the net attribute for the join condition. Start with keeping only the id, place, and netcode. Then, use $lookup in the aggregate pipeline to perform the join.
+
+//Expected output
+
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbb9"),
+    "place" : "15 km SW of Leilani Estates, Hawaii",
+    "netCode" : "hv",
+    "matching_nets" : [
+            {
+                    "_id" : ObjectId("625c4922117a684a65011c07"),
+                    "net" : "hv",
+                    "description" : "Hawaii Volcano Observatory"
+            }
+    ]
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbba"),
+    "place" : "22 km NNW of Nelchina, Alaska",
+    "netCode" : "ak",
+    "matching_nets" : [
+            {
+                    "_id" : ObjectId("625c4922117a684a65011c08"),
+                    "net" : "ak",
+                    "description" : "Alaska Earthquake Center"
+            }
+    ]
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbb"),
+    "place" : "8km S of San Diego Country Estates, CA",
+    "netCode" : "ci",
+    "matching_nets" : [
+            {
+                    "_id" : ObjectId("625c4922117a684a65011c0a"),
+                    "net" : "ci",
+                    "description" : "California Integrated Seismic Network: Southern California Seismic Network (Caltech/USGS Pasadena and Partners) and Southern California Earthquake Data Center"
+            }
+    ]
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbc"),
+    "place" : "0 km WSW of Magas Arriba, Puerto Rico",
+    "netCode" : "pr",
+    "matching_nets" : [
+            {
+                    "_id" : ObjectId("625c4922117a684a65011c09"),
+                    "net" : "pr",
+                    "description" : "Puerto Rico Seismic Network"
+            }
+    ]
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbd"),
+    "place" : "8 km E of Pāhala, Hawaii",
+    "netCode" : "hv",
+    "matching_nets" : [
+            {
+                    "_id" : ObjectId("625c4922117a684a65011c07"),
+                    "net" : "hv",
+                    "description" : "Hawaii Volcano Observatory"
+            }
+    ]
+}
+{
+    "_id" : ObjectId("625751f3f3ed753c1850fbbe"),
+    "place" : "12km NNE of Lake Hughes, CA",
+    "netCode" : "ci",
+    "matching_nets" : [
+            {
+                    "_id" : ObjectId("625c4922117a684a65011c0a"),
+                    "net" : "ci",
+                    "description" : "California Integrated Seismic Network: Southern California Seismic Network (Caltech/USGS Pasadena and Partners) and Southern California Earthquake Data Center"
+            }
+    ]
+}
+
+//Question 7) (15 points) The result in the previous question has a complex structure as the result (matching_nets) is an array of documents (the array has one document for each earthquake above). Use the $unwind operator then the $project operator to return the output using the following format. Here is an example of using the unwind operator: https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/#unwind-array
+
+
+//Hint: use the unwind first and run the query to check the output. Then, add the $project operator to keep the attributes needed in the final result.
+
+//Expected output
+{
+    "place" : "15 km SW of Leilani Estates, Hawaii",
+    "netCode" : "hv",
+    "description" : "Hawaii Volcano Observatory"
+}
+{
+    "place" : "22 km NNW of Nelchina, Alaska",
+    "netCode" : "ak",
+    "description" : "Alaska Earthquake Center"
+}
+{
+    "place" : "8km S of San Diego Country Estates, CA",
+    "netCode" : "ci",
+    "description" : "California Integrated Seismic Network: Southern California Seismic Network (Caltech/USGS Pasadena and Partners) and Southern California Earthquake Data Center"
+}
+{
+    "place" : "0 km WSW of Magas Arriba, Puerto Rico",
+    "netCode" : "pr",
+    "description" : "Puerto Rico Seismic Network"
+}
+{
+    "place" : "8 km E of Pāhala, Hawaii",
+    "netCode" : "hv",
+    "description" : "Hawaii Volcano Observatory"
+}
+{
+    "place" : "12km NNE of Lake Hughes, CA",
+    "netCode" : "ci",
+    "description" : "California Integrated Seismic Network: Southern California Seismic Network (Caltech/USGS Pasadena and Partners) and Southern California Earthquake Data Center"
+}

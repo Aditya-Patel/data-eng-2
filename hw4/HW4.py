@@ -12,22 +12,66 @@ import sys
 # usage: python hw4.py
 
 def username():
-	return "YourUsername"
+	return "o771438"
     
 def query1():
     return """
-           """ 
+db.earthquakes.find(
+  {"properties.mag":
+    {"$gte":2.0}
+  },
+  {
+    _id:1, 
+    place: "$properties.place",
+    mag: "$properties.mag", 
+    sig: "$properties.sig"
+  }
+).pretty()
+	""" 
 
 def query2():
     return """
+db.earthquakes.find(
+  { "$and": [
+    { "$and": [
+      { "geometry.coordinates.0":
+	    { "$gte": -120}
+	  },
+	  { "geometry.coordinates.0": {
+	    "$lte": -60
+	  }
+	}
+    ]},
+    { "$and": [
+      { "geometry.coordinates.1":
+        { "$gte": 30}
+	}, { "geometry.coordinates.1": { "$lte": 35 }}]}]},
+  {
+    coordinates: "$geometry.coordinates",
+    place: "$properties.place"
+  }
+).pretty()
            """
             
 def query3():
     return """
+db.earthquakes.aggregate(
+  { $group: 
+	{ _id: "$properties.status", 
+	  avg_mag: 
+	  { $avg: "$properties.mag" } 
+	} 
+  }
+).pretty()
            """ 
 
 def query4():
     return """
+db.earthquakes.aggregate(
+	{ $group: 
+	  { _id: "$properties.net"}
+	}
+).pretty()
            """
 
 def query5():

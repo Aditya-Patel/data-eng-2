@@ -144,7 +144,7 @@ db.earthquakes.find({"properties.status": {"$eq": "automatic" }},
 //Expected output
 
 {
-    "_id" : ObjectId("625751f3f3ed753c1850fbb9"),
+    "_id" : ObjectId("625751f3f3ed753c1850fbb9")place,
     "place" : "15 km SW of Leilani Estates, Hawaii",
     "netCode" : "hv",
     "matching_nets" : [

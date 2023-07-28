@@ -17,73 +17,151 @@ def username():
 def query1():
     return """
 db.earthquakes.find(
-  {"properties.mag":
-    {"$gte":2.0}
-  },
-  {
-    _id:1, 
-    place: "$properties.place",
-    mag: "$properties.mag", 
-    sig: "$properties.sig"
-  }
+	{
+		"properties.mag": {
+			"$gte":2.0
+		}
+	},
+  	{
+    	_id:1, 
+    	place: "$properties.place",
+    	mag: "$properties.mag", 
+    	sig: "$properties.sig"
+	}
 ).pretty()
 	""" 
 
 def query2():
     return """
 db.earthquakes.find(
-  { "$and": [
-    { "$and": [
-      { "geometry.coordinates.0":
-	    { "$gte": -120}
-	  },
-	  { "geometry.coordinates.0": {
-	    "$lte": -60
-	  }
+	{ 
+		"$and": [
+			{
+				"$and": [
+					{
+						"geometry.coordinates.0": { 
+							"$gte": -120
+						}
+					},
+					{
+						"geometry.coordinates.0": {
+							"$lte": -60
+						}
+					}
+				]
+			},
+			{
+				"$and": [
+					{
+						"geometry.coordinates.1": {
+							"$gte": 30
+						}
+					},
+					{
+						"geometry.coordinates.1": { 
+							"$lte": 35 
+						}
+					}
+				]
+			}
+		]
+	},
+	{
+		coordinates: "$geometry.coordinates",
+		place: "$properties.place"
 	}
-    ]},
-    { "$and": [
-      { "geometry.coordinates.1":
-        { "$gte": 30}
-	}, { "geometry.coordinates.1": { "$lte": 35 }}]}]},
-  {
-    coordinates: "$geometry.coordinates",
-    place: "$properties.place"
-  }
 ).pretty()
            """
             
 def query3():
     return """
 db.earthquakes.aggregate(
-  { $group: 
-	{ _id: "$properties.status", 
-	  avg_mag: 
-	  { $avg: "$properties.mag" } 
-	} 
-  }
+	{ 
+		$group: { 
+			_id: "$properties.status", 
+	  		avg_mag: { 
+				$avg: "$properties.mag"
+			} 
+		} 
+  	}
 ).pretty()
            """ 
 
 def query4():
     return """
 db.earthquakes.aggregate(
-	{ $group: 
-	  { _id: "$properties.net"}
+	{ 
+		$group: { 
+			_id: "$properties.net"
+		}
 	}
 ).pretty()
-           """
+    """
 
 def query5():
     return """
+db.earthquakes.find(
+	{},
+	{
+		_id: 0,
+		magnitude:"$properties.mag", 
+		place:"$properties.place"
+	}
+).sort(
+	{
+		"properties.mag" : -1
+	}
+).limit(1)
            """ 
 
 def query6():
     return """
+db.earthquakes.aggregate( 
+	[ 
+		{ 
+			$project: {
+				_id: 1, 
+				place: "$properties.place", 
+				netCode: "$properties.net" 
+			} 
+		},
+		{ 
+			$lookup: { 
+				from: "networks", 
+				localField: "netCode", 
+				foreignField: "net", 
+				as: "matching_nets" 
+			} 
+		}
+	] 
+).pretty()
            """
 
 def query7():
     return """
+db.earthquakes.aggregate(
+	[ 
+		{ 
+			$lookup: { 
+				from: "networks", 
+				localField: "properties.net", 
+				foreignField: "net", 
+				as: "matching_nets" 
+			} 
+		}, 
+		{ 
+			$unwind: "$matching_nets" 
+		}, 
+		{ 
+			$project: { 
+				_id:0, 
+				place:"$properties.place", 
+				netCode: "$matching_nets.net", 
+				description: "$matching_nets.description" 
+			} 
+		} 
+	] 
+)
            """
 #Do not edit below
 

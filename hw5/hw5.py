@@ -100,13 +100,13 @@ cluster_labels = kmeans.labels_
 closest_artists = []
 
 for k in range(k_optimal):
-    cluster_indices = np.where(cluster_labels == k)[0]
-    cluster_members = std_data[cluster_indices]
+    k_indices = np.where(cluster_labels == k)[0]
+    k_members = std_data[k_indices]
     centroid = kmeans.cluster_centers_[k]
-    distances = distance.cdist([centroid], cluster_members, 'euclidean')[0]
+    distances = distance.cdist([centroid], k_members, 'euclidean')[0]
     closest = distances.argsort()[:3]
     for idx in closest:
-        df_original_idx = cluster_indices[idx]
+        df_original_idx = k_indices[idx]
         closest_distance = distances[idx]
         closest_artists.append({"Artist": artist_df.iloc[df_original_idx]["Artist"], "group_num": k, "centroid_dist": closest_distance})
 
